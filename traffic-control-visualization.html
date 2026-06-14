@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交叉口改造方案设计</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft YaHei", sans-serif; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #1e40af; font-size: 26px; }
+        .header p { color: #666; margin-top: 10px; }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dbeafe;
+        }
+        
+        .section-number {
+            width: 32px;
+            height: 32px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .section-title h2 { color: #1e40af; font-size: 18px; }
+        
+        .comparison-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        
+        .diagram-card { text-align: center; }
+        .diagram-card h3 { color: #3b82f6; font-size: 16px; margin-bottom: 15px; }
+        .diagram-card p { color: #666; font-size: 13px; margin-top: 15px; }
+        
+        .intersection-canvas { width: 100%; max-width: 600px; height: auto; }
+        
+        .step-content { padding-left: 47px; }
+        .step-content p { color: #374151; line-height: 1.7; margin-bottom: 12px; font-size: 14px; }
+        .step-content ul { margin-left: 20px; margin-bottom: 12px; }
+        .step-content li { color: #374151; margin-bottom: 6px; font-size: 14px; }
+        
+        .formula-box {
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
+            padding: 12px 18px;
+            margin: 15px 0;
+            font-family: "Courier New", monospace;
+            font-size: 14px;
+            color: #059669;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #e5e7eb;
+            padding: 10px 12px;
+            text-align: center;
+        }
+        .data-table th { background: #f3f4f6; font-weight: 600; }
+        
+        .result-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 12px 18px;
+            margin: 15px 0;
+        }
+        .result-box h4 { color: #1e40af; margin-bottom: 6px; }
+        .result-box p { color: #374151; font-size: 13px; }
+        
+        .footer { text-align: center; padding: 20px; color: #9ca3af; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>城市道路复杂交叉口改造方案设计</h1>
+            <p>智能建造竞赛课程设计 | 双节点联动协调系统</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">0</div>
+                <h2>交叉口改造方案对比</h2>
+            </div>
+            
+            <div class="comparison-grid">
+                <div class="diagram-card">
+                    <h3>图1. 原设计方案</h3>
+                    <canvas class="intersection-canvas" id="originalCanvas" width="600" height="400"></canvas>
+                    <p>五路畸形交叉口，交通组织复杂，冲突点多</p>
+                </div>
+                
+                <div class="diagram-card">
+                    <h3>图2. 改进设计方案</h3>
+                    <canvas class="intersection-canvas" id="improvedCanvas" width="600" height="400"></canvas>
+                    <p>双节点联动协调系统，分离为两个标准交叉口</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">1</div>
+                <h2>交叉口渠化设计与相位方案</h2>
+            </div>
+            <div class="step-content">
+                <p>本设计将原五路畸形交叉口改造为双节点联动协调系统：</p>
+                <ul>
+                    <li><strong>节点1（主十字路口）</strong>：DAK1+100，标准十字交叉，5车道设计</li>
+                    <li><strong>节点2（T型交叉口）</strong>：B路接入点，与主路形成T型交叉</li>
+                    <li><strong>间距</strong>：两节点间距60米，实现绿波协调控制</li>
+                </ul>
+                <p><strong>相位方案设计：</strong>采用四相位控制方案，包含南北直行、东西直行、南北左转、东西左转四个相位。</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">2</div>
+                <h2>各车道组直行当量计算</h2>
+            </div>
+            <div class="step-content">
+                <p>根据交通调查数据，各转向流量如下表所示：</p>
+                <table class="data-table">
+                    <tr><th>进口道</th><th>左转流量(pcu/h)</th><th>直行流量(pcu/h)</th><th>右转流量(pcu/h)</th></tr>
+                    <tr><td>A东</td><td>180</td><td>520</td><td>150</td></tr>
+                    <tr><td>D西</td><td>160</td><td>480</td><td>140</td></tr>
+                    <tr><td>E北</td><td>200</td><td>450</td><td>120</td></tr>
+                    <tr><td>C南</td><td>190</td><td>460</td><td>130</td></tr>
+                </table>
+                <p><strong>直行当量系数</strong>：左转车辆当量系数E_L=1.5，右转车辆当量系数E_R=1.0</p>
+                <div class="formula-box">V_e = V_s + 1.5 × V_l + V_r</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">3</div>
+                <h2>流量比分析与关键车流确定</h2>
+            </div>
+            <div class="step-content">
+                <p>计算各车道组的流量比（Y值）：</p>
+                <table class="data-table">
+                    <tr><th>车道组</th><th>流量比Y_i</th></tr>
+                    <tr><td>南北直行</td><td>0.18</td></tr>
+                    <tr><td>东西直行</td><td>0.22</td></tr>
+                    <tr><td>南北左转</td><td>0.12</td></tr>
+                    <tr><td>东西左转</td><td>0.084</td></tr>
+                </table>
+                <div class="result-box">
+                    <h4>总流量比 Y = ΣY_i = 0.604</h4>
+                    <p>Y = 0.604 < 0.9，满足信号控制设计要求</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">4</div>
+                <h2>确定黄灯时间和全红时间</h2>
+            </div>
+            <div class="step-content">
+                <div class="formula-box">
+                    A = t + v/(2g)
+                    <br>其中：t=1.0s，v=50km/h，g=2.5m/s²
+                </div>
+                <div class="result-box">
+                    <h4>计算结果</h4>
+                    <p>黄灯时间 A = 3s</p>
+                    <p>全红时间 r = 2s</p>
+                    <p>绿灯间隔时间 I = A + r = 5s</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">5</div>
+                <h2>确定信号损失时间</h2>
+            </div>
+            <div class="step-content">
+                <p>每相位损失时间 L_i = I - A = 5 - 3 = 2s</p>
+                <p>启动损失时间 = 3s</p>
+                <div class="formula-box">L = n × L_i + 启动损失 = 4 × 2 + 3 = 11s</div>
+                <div class="result-box">
+                    <h4>总损失时间 L = 11s</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">6</div>
+                <h2>确定信号周期时长</h2>
+            </div>
+            <div class="step-content">
+                <div class="formula-box">C_0 = L / (1 - Y) = 11 / (1 - 0.604) ≈ 27.8s</div>
+                <p><strong>实际周期</strong>：取标准周期 C = 60s（考虑行人过街需求和绿波协调）</p>
+                <div class="result-box">
+                    <h4>最终信号周期 C = 60s</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">7</div>
+                <h2>绿灯时间分配</h2>
+            </div>
+            <div class="step-content">
+                <div class="formula-box">G_i = (C - L) × (Y_i / Y)</div>
+                <table class="data-table">
+                    <tr><th>相位</th><th>有效绿灯时间(s)</th><th>绿灯显示时间(s)</th></tr>
+                    <tr><td>相位1-南北直行</td><td>14</td><td>12</td></tr>
+                    <tr><td>相位2-东西直行</td><td>26</td><td>24</td></tr>
+                    <tr><td>相位3-南北左转</td><td>14</td><td>12</td></tr>
+                    <tr><td>相位4-东西左转</td><td>9</td><td>7</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <div class="section-number">8</div>
+                <h2>行人过街时间检验</h2>
+            </div>
+            <div class="step-content">
+                <div class="formula-box">
+                    t_p = S / v_p + t_r
+                    <br>其中：S=20m，v_p=1.2m/s，t_r=3s
+                </div>
+                <div class="result-box">
+                    <h4>行人最小绿灯时间 t_p = 20/1.2 + 3 ≈ 19.7s</h4>
+                    <p>相位2东西直行绿灯时间=24s ≥ 19.7s ✓ 满足要求</p>
+                    <p>相位1南北直行绿灯时间=12s < 19.7s → 需优化相位方案</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>城市道路复杂交叉口改造方案 | 智能建造竞赛课程设计 | 2026</p>
+        </div>
+    </div>
+
+    <script>
+        // 绘制原方案
+        function drawOriginal() {
+            const canvas = document.getElementById('originalCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
+            
+            const road = '#8B7355';
+            const border = '#5D4E37';
+            const sidewalk = '#D4C4A8';
+            
+            const cx = w * 0.5;
+            const cy = h * 0.55;
+            const roadW = 80;
+            
+            // 东西向主路
+            ctx.fillStyle = road;
+            ctx.fillRect(0, cy - roadW/2, w, roadW);
+            ctx.strokeStyle = border;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, cy - roadW/2, w, roadW);
+            
+            // 南北向主路（向北）
+            ctx.fillStyle = road;
+            ctx.fillRect(cx - roadW/2, 25, roadW, cy);
+            ctx.strokeRect(cx - roadW/2, 25, roadW, cy);
+            
+            // B路（南向支路）
+            ctx.fillStyle = road;
+            ctx.fillRect(cx - 120, cy + roadW/2, 45, h - cy - roadW/2 - 25);
+            ctx.strokeRect(cx - 120, cy + roadW/2, 45, h - cy - roadW/2 - 25);
+            
+            // C路（弯曲）
+            ctx.fillStyle = road;
+            ctx.beginPath();
+            ctx.moveTo(cx + roadW/2, cy);
+            ctx.lineTo(cx + 60, cy + 50);
+            ctx.lineTo(cx + 140, cy + 150);
+            ctx.lineTo(cx + 150, cy + 170);
+            ctx.lineTo(cx + 50, cy + 20);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // F路出入口
+            ctx.fillStyle = '#A09080';
+            ctx.fillRect(cx + 85, 45, 45, 18);
+            ctx.strokeStyle = border;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(cx + 85, 45, 45, 18);
+            
+            // 转角圆弧
+            ctx.strokeStyle = road;
+            ctx.lineWidth = roadW;
+            ctx.beginPath(); ctx.arc(cx - roadW/2, cy - roadW/2, 25, 0, Math.PI/2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx + roadW/2, cy - roadW/2, 25, -Math.PI/2, 0); ctx.stroke();
+            ctx.beginPath(); ctx.arc(cx - roadW/2, cy + roadW/2, 25, Math.PI/2, Math.PI); ctx.stroke();
+            
+            // 车道分隔线
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([25, 20]);
+            ctx.beginPath(); ctx.moveTo(25, cy - 18); ctx.lineTo(w - 25, cy - 18); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(25, cy + 18); ctx.lineTo(w - 25, cy + 18); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx - 18, 30); ctx.lineTo(cx - 18, cy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx + 18, 30); ctx.lineTo(cx + 18, cy); ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // 人行横道
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 10; i++) {
+                ctx.fillRect(cx - 60 + i * 10, cy - roadW/2 - 8, 8, 6);
+                ctx.fillRect(cx - 60 + i * 10, cy + roadW/2 + 2, 8, 6);
+            }
+            for (let i = 0; i < 8; i++) {
+                ctx.fillRect(cx - roadW/2 - 8, cy - 45 + i * 10, 6, 8);
+            }
+            
+            // 停车位区域
+            ctx.fillStyle = sidewalk;
+            ctx.fillRect(cx - 170, cy + roadW/2 + 12, 60, 110);
+            
+            // 停车位标线
+            ctx.strokeStyle = road;
+            ctx.lineWidth = 1;
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 6; col++) {
+                    ctx.strokeRect(cx - 165 + col * 9, cy + roadW/2 + 20 + row * 25, 8, 18);
+                }
+            }
+            
+            // 道路标注
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 16px "Microsoft YaHei"';
+            ctx.textAlign = 'center';
+            ctx.fillText('A', w - 40, cy);
+            ctx.fillText('D', 40, cy);
+            ctx.fillText('E', cx, 35);
+            ctx.fillText('C', cx + 145, cy + 160);
+            ctx.fillText('B', cx - 120, h - 20);
+            ctx.fillText('F', cx + 107, 55);
+            
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText('→', w - 40, cy + 20);
+            ctx.fillText('←', 40, cy + 20);
+            ctx.fillText('↑', cx, 50);
+            ctx.fillText('↓', cx - 120, h - 5);
+            ctx.fillText('↓', cx + 145, cy + 178);
+            
+            // 问题标注
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 12px "Microsoft YaHei"';
+            ctx.fillText('⚠ 五路畸形交叉口', cx, cy + 80);
+        }
+
+        // 绘制改进方案
+        function drawImproved() {
+            const canvas = document.getElementById('improvedCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
+            
+            const road = '#8B7355';
+            const border = '#5D4E37';
+            const island = '#3b82f6';
+            const green = '#86efac';
+            const water = '#dbeafe';
+            
+            const node1X = w * 0.35;
+            const node1Y = h * 0.55;
+            const node2X = w * 0.72;
+            const node2Y = h * 0.6;
+            const roadW = 80;
+            const sideW = 45;
+            
+            // 东西向主路
+            ctx.fillStyle = road;
+            ctx.fillRect(0, node1Y - roadW/2, w, roadW);
+            ctx.strokeStyle = border;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, node1Y - roadW/2, w, roadW);
+            
+            // 南北向主路
+            ctx.fillStyle = road;
+            ctx.fillRect(node1X - roadW/2, 25, roadW, h - 25);
+            ctx.strokeRect(node1X - roadW/2, 25, roadW, h - 25);
+            
+            // B路
+            ctx.fillStyle = road;
+            ctx.fillRect(node2X - sideW/2, node2Y, sideW, h - node2Y - 25);
+            ctx.strokeRect(node2X - sideW/2, node2Y, sideW, h - node2Y - 25);
+            
+            // F路出入口
+            ctx.fillStyle = '#A09080';
+            ctx.fillRect(node1X + 85, 45, 45, 18);
+            ctx.fillRect(node1X + 85, h - 65, 45, 18);
+            ctx.strokeStyle = border;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(node1X + 85, 45, 45, 18);
+            ctx.strokeRect(node1X + 85, h - 65, 45, 18);
+            
+            // 节点1转角圆弧
+            ctx.strokeStyle = road;
+            ctx.lineWidth = roadW;
+            ctx.beginPath(); ctx.arc(node1X - roadW/2, node1Y - roadW/2, 25, 0, Math.PI/2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(node1X + roadW/2, node1Y - roadW/2, 25, -Math.PI/2, 0); ctx.stroke();
+            ctx.beginPath(); ctx.arc(node1X - roadW/2, node1Y + roadW/2, 25, Math.PI/2, Math.PI); ctx.stroke();
+            ctx.beginPath(); ctx.arc(node1X + roadW/2, node1Y + roadW/2, 25, Math.PI, -Math.PI/2); ctx.stroke();
+            
+            // 节点2转角圆弧
+            ctx.lineWidth = sideW;
+            ctx.beginPath(); ctx.arc(node2X - sideW/2, node2Y, 20, 0, Math.PI/2); ctx.stroke();
+            ctx.beginPath(); ctx.arc(node2X + sideW/2, node2Y, 20, -Math.PI/2, 0); ctx.stroke();
+            
+            // 车道分隔线
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([25, 20]);
+            for (let i = -2; i <= 2; i++) {
+                ctx.beginPath(); ctx.moveTo(25, node1Y + i * 16); ctx.lineTo(w - 25, node1Y + i * 16); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(node1X + i * 16, 30); ctx.lineTo(node1X + i * 16, h - 25); ctx.stroke();
+            }
+            ctx.setLineDash([]);
+            
+            // 人行横道
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 10; i++) {
+                ctx.fillRect(node1X - 60 + i * 10, node1Y - roadW/2 - 8, 8, 6);
+                ctx.fillRect(node1X - 60 + i * 10, node1Y + roadW/2 + 2, 8, 6);
+            }
+            for (let i = 0; i < 8; i++) {
+                ctx.fillRect(node1X - roadW/2 - 8, node1Y - 45 + i * 10, 6, 8);
+                ctx.fillRect(node1X + roadW/2 + 2, node1Y - 45 + i * 10, 6, 8);
+            }
+            
+            // 中央安全岛
+            ctx.fillStyle = '#e0f2fe';
+            ctx.beginPath(); ctx.arc(node1X, node1Y, 22, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = island;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // 绿化区域
+            ctx.fillStyle = green;
+            ctx.globalAlpha = 0.6;
+            ctx.beginPath();
+            ctx.moveTo(node2X - sideW/2 - 8, node2Y - 25);
+            ctx.lineTo(node2X - sideW/2 - 70, node2Y);
+            ctx.lineTo(node2X - sideW/2 - 35, node2Y + 25);
+            ctx.closePath();
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            
+            // 树木标记
+            for (let i = 0; i < 4; i++) {
+                ctx.fillStyle = green;
+                ctx.beginPath(); ctx.arc(node2X - 55, node2Y + i * 24, 8, 0, Math.PI * 2); ctx.fill();
+            }
+            
+            // 水域区域
+            ctx.fillStyle = water;
+            ctx.beginPath();
+            ctx.moveTo(node1X + roadW/2 + 18, node1Y + 30);
+            ctx.lineTo(node1X + 130, node1Y);
+            ctx.lineTo(node2X - sideW/2 - 12, node2Y - 15);
+            ctx.lineTo(node1X + 45, node1Y + 80);
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = '#93c5fd';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(node2X - sideW/2, node2Y + 30);
+            ctx.lineTo(node2X + sideW/2 + 40, node2Y + 8);
+            ctx.lineTo(node2X + sideW/2 + 25, node2Y + 50);
+            ctx.lineTo(node2X - sideW/2 + 8, node2Y + 65);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            
+            // 道路标注
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 16px "Microsoft YaHei"';
+            ctx.textAlign = 'center';
+            ctx.fillText('A', w - 40, node1Y);
+            ctx.fillText('D', 40, node1Y);
+            ctx.fillText('E', node1X, 35);
+            ctx.fillText('C', node1X, h - 8);
+            ctx.fillText('B', node2X, h - 8);
+            ctx.fillText('F', node1X + 107, 55);
+            ctx.fillText('F', node1X + 107, h - 58);
+            
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillText('→', w - 40, node1Y + 20);
+            ctx.fillText('←', 40, node1Y + 20);
+            ctx.fillText('↑', node1X, 50);
+            ctx.fillText('↓', node1X, h - 22);
+            ctx.fillText('↓', node2X, h - 22);
+            
+            // 节点标注
+            ctx.fillStyle = island;
+            ctx.font = 'bold 12px "Microsoft YaHei"';
+            ctx.fillText('● 节点1', node1X, node1Y + 58);
+            ctx.font = '10px "Microsoft YaHei"';
+            ctx.fillText('(DAK1+100)', node1X, node1Y + 72);
+            
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 12px "Microsoft YaHei"';
+            ctx.fillText('● 节点2', node2X, node2Y + 38);
+            ctx.font = '10px "Microsoft YaHei"';
+            ctx.fillText('(T型交叉口)', node2X, node2Y + 52);
+            
+            // 间距标注
+            ctx.strokeStyle = island;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([8, 6]);
+            ctx.beginPath(); ctx.moveTo(node1X + roadW/2 + 8, h - 38); ctx.lineTo(node2X - sideW/2 - 8, h - 38); ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.beginPath(); ctx.moveTo(node1X + roadW/2 + 8, h - 38); ctx.lineTo(node1X + roadW/2, h - 33); ctx.lineTo(node1X + roadW/2, h - 43); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(node2X - sideW/2 - 8, h - 38); ctx.lineTo(node2X - sideW/2, h - 33); ctx.lineTo(node2X - sideW/2, h - 43); ctx.closePath(); ctx.fill();
+            
+            ctx.fillStyle = island;
+            ctx.font = 'bold 12px "Microsoft YaHei"';
+            ctx.fillText('60m', (node1X + roadW/2 + node2X - sideW/2)/2, h - 20);
+            
+            // 绿波带示意
+            ctx.fillStyle = green;
+            ctx.globalAlpha = 0.4;
+            ctx.fillRect(node1X + roadW/2 + 8, node1Y - 22, 100, 44);
+            ctx.globalAlpha = 1;
+            
+            ctx.strokeStyle = '#16a34a';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(node1X + roadW/2 + 12, node1Y); ctx.lineTo(node1X + roadW/2 + 100, node1Y); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(node1X + roadW/2 + 95, node1Y); ctx.lineTo(node1X + roadW/2 + 87, node1Y - 5); ctx.moveTo(node1X + roadW/2 + 95, node1Y); ctx.lineTo(node1X + roadW/2 + 87, node1Y + 5); ctx.stroke();
+            
+            ctx.fillStyle = '#16a34a';
+            ctx.font = 'bold 10px "Microsoft YaHei"';
+            ctx.fillText('绿波带', node1X + roadW/2 + 58, node1Y + 10);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            drawOriginal();
+            drawImproved();
+        });
+    </script>
+</body>
+</html>

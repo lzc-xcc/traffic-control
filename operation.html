@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>运营分析 | 郑州地铁8号线</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">8</span>
+                <span>郑州地铁8号线</span>
+            </a>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="route.html" class="nav-link">线路站点</a>
+                <a href="operation.html" class="nav-link active">运营分析</a>
+                <a href="transfer.html" class="nav-link">换乘枢纽</a>
+                <a href="map.html" class="nav-link">线路地图</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面头部 -->
+    <header class="page-header">
+        <div class="container">
+            <h1 class="page-title">运营班次分析</h1>
+            <p class="page-subtitle">基于2026年最新运行图的运营数据统计</p>
+        </div>
+    </header>
+
+    <!-- 运营时间 -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">整体运营时间</h2>
+            
+            <div class="card mb-8">
+                <div class="card-header">
+                    <h3 class="card-title">⏰ 全线统一运营时间</h3>
+                </div>
+                <div class="card-body">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 40px; padding: 40px 0;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; font-weight: 700; color: var(--accent-color);">06:00</div>
+                            <div style="color: var(--text-secondary); margin-top: 8px;">首班车</div>
+                        </div>
+                        <div style="flex: 1; max-width: 400px; height: 8px; background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); border-radius: 4px; position: relative;">
+                            <div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-weight: 600; color: var(--secondary-color);">
+                                全天运营 17 小时
+                            </div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 3rem; font-weight: 700; color: var(--warning-color);">23:00</div>
+                            <div style="color: var(--text-secondary); margin-top: 8px;">末班车</div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--primary-light); padding: 20px; border-radius: var(--radius-md); margin-top: 20px;">
+                        <p style="margin: 0;"><strong>首末班车说明：</strong></p>
+                        <ul style="margin-top: 12px; padding-left: 20px; list-style: disc;">
+                            <li>天健湖站、鲁庙站双向首班车统一于 <strong>06:00</strong> 发出</li>
+                            <li>天健湖站、鲁庙站双向末班车发车时间均为 <strong>23:00</strong></li>
+                            <li>中间站末班车随线路顺延至23:00后，最晚站点末班车可达次日 <strong>00:10</strong> 左右</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 行车间隔 -->
+    <section class="section" style="background: var(--primary-light);">
+        <div class="container">
+            <h2 class="section-title">分时段行车间隔</h2>
+            
+            <div class="grid-2">
+                <!-- 工作日 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📅 工作日（周一至周五）</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <tr>
+                                <td><strong>时段</strong></td>
+                                <td><strong>行车间隔</strong></td>
+                            </tr>
+                            <tr>
+                                <td>早晚高峰（7:00-9:00、17:00-19:00）</td>
+                                <td><span style="color: var(--accent-color); font-weight: 700;">5分钟</span></td>
+                            </tr>
+                            <tr>
+                                <td>平峰时段</td>
+                                <td><span style="font-weight: 700;">10分钟</span></td>
+                            </tr>
+                            <tr>
+                                <td>夜间时段</td>
+                                <td><span style="font-weight: 700;">10分钟</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 周末 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🎉 周末及法定节假日</h3>
+                    </div>
+                    <div class="card-body">
+                        <table class="data-table">
+                            <tr>
+                                <td><strong>时段</strong></td>
+                                <td><strong>行车间隔</strong></td>
+                            </tr>
+                            <tr>
+                                <td>全天统一</td>
+                                <td><span style="color: var(--accent-color); font-weight: 700;">7分30秒</span></td>
+                            </tr>
+                        </table>
+                        <div style="background: #FFF3E0; padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 0.875rem;">
+                            <strong>特殊调整：</strong>大流量时段会临时调整发车间隔，并延长运营时间至次日0点左右。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 间隔对比图表 -->
+            <div class="card mt-8">
+                <div class="card-header">
+                    <h3 class="card-title">📊 行车间隔对比</h3>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="intervalChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 全日班次 -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">全日运营班次测算</h2>
+            
+            <div class="grid-3">
+                <div class="stat-card">
+                    <div class="stat-icon">🚇</div>
+                    <div class="stat-value" style="color: var(--accent-color);">160-166对</div>
+                    <div class="stat-label">工作日全日班次</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🚇</div>
+                    <div class="stat-value" style="color: var(--accent-color);">145对</div>
+                    <div class="stat-label">周末全日班次</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🚃</div>
+                    <div class="stat-value">80-83班</div>
+                    <div class="stat-label">单方向日均发车</div>
+                </div>
+            </div>
+
+            <div class="card mt-8">
+                <div class="card-header">
+                    <h3 class="card-title">📈 运力分析</h3>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="tripsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特殊时段 -->
+    <section class="section" style="background: #FFF3E0;">
+        <div class="container">
+            <h2 class="section-title">特殊时段运营</h2>
+            
+            <div class="card">
+                <div class="card-header" style="background: #FFF8E1;">
+                    <h3 class="card-title">🎊 大型活动日运营安排</h3>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-time">元宵节</div>
+                            <div class="timeline-content">
+                                <strong>延时运营至次日00:00</strong><br>
+                                延时时段行车间隔约10分钟
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">跨年夜</div>
+                            <div class="timeline-content">
+                                <strong>延时运营至次日00:00</strong><br>
+                                延时时段行车间隔约10分钟
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-time">其他大型活动</div>
+                            <div class="timeline-content">
+                                <strong>根据实际情况调整</strong><br>
+                                可能临时调整发车间隔和运营时间
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p>城市公共交通课程报告 - 郑州地铁8号线一期调研</p>
+            <p style="font-size: 0.875rem; opacity: 0.6;">数据来源：郑州地铁2026年最新运行图</p>
+            <p style="font-size: 0.875rem; opacity: 0.8; margin-top: 16px;">© 2026 李政聪 版权所有</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // 行车间隔图表
+        const intervalCtx = document.getElementById('intervalChart').getContext('2d');
+        new Chart(intervalCtx, {
+            type: 'bar',
+            data: {
+                labels: ['工作日高峰', '工作日平峰', '工作日夜间', '周末全天', '节假日延时'],
+                datasets: [{
+                    label: '行车间隔（分钟）',
+                    data: [5, 10, 10, 7.5, 10],
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#81C784',
+                        '#A5D6A7',
+                        '#FF9800',
+                        '#FFB74D'
+                    ],
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 12,
+                        ticks: {
+                            stepSize: 2
+                        }
+                    }
+                }
+            }
+        });
+
+        // 班次图表
+        const tripsCtx = document.getElementById('tripsChart').getContext('2d');
+        new Chart(tripsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['工作日班次', '周末班次'],
+                datasets: [{
+                    data: [163, 145],
+                    backgroundColor: ['#4CAF50', '#FF9800'],
+                    borderWidth: 0,
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

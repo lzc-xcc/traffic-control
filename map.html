@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>郑州地铁线路图 | 交互式地图</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 交互式地图专用样式 */
+        .map-container {
+            position: relative;
+            background: #1a1a2e;
+            border-radius: 16px;
+            overflow: hidden;
+            padding: 24px;
+        }
+
+        .metro-line {
+            position: relative;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .line-8 { border-left: 4px solid #4CAF50; }
+        .line-1 { border-left: 4px solid #F44336; }
+        .line-2 { border-left: 4px solid #E91E63; }
+        .line-3 { border-left: 4px solid #FF9800; }
+        .line-4 { border-left: 4px solid #00BCD4; }
+        .line-5 { border-left: 4px solid #9C27B0; }
+        .line-6 { border-left: 4px solid #3F51B5; }
+        .line-7 { border-left: 4px solid #673AB7; }
+        .line-12 { border-left: 4px solid #795548; }
+
+        .line-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .line-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        .line-name {
+            font-weight: 700;
+            color: white;
+            font-size: 1.125rem;
+        }
+
+        .stations-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .station-node {
+            position: relative;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-weight: 500;
+        }
+
+        .station-node:hover {
+            background: rgba(76, 175, 80, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* 站点详情弹窗 */
+        .station-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .station-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 24px;
+            background: linear-gradient(135deg, #4CAF50, #81C784);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .modal-close:hover { opacity: 1; }
+
+        .modal-body { padding: 24px; }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #37474F;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #E8F5E9;
+        }
+
+        /* 3D结构图 */
+        .station-3d-layout {
+            background: linear-gradient(135deg, #F5F5F5 0%, #E8F5E9 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            perspective: 1000px;
+        }
+
+        .layout-title {
+            font-weight: 600;
+            color: #37474F;
+            margin-bottom: 24px;
+            text-align: center;
+            font-size: 1.125rem;
+        }
+
+        .floor-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .floor-layer {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .floor-layer:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(76, 175, 80, 0.2);
+        }
+
+        .floor-label {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .floor-label.ground { background: #FF9800; }
+        .floor-label.b1 { background: #4CAF50; }
+        .floor-label.b2 { background: #2196F3; }
+        .floor-label.b3 { background: #9C27B0; }
+
+        .floor-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .facility-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #F5F5F5;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .facility-item:hover {
+            background: #E8F5E9;
+        }
+
+        .facility-icon-box {
+            width: 32px;
+            height: 32px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .facility-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .facility-name {
+            font-weight: 600;
+            color: #37474F;
+            font-size: 0.875rem;
+        }
+
+        .facility-location {
+            font-size: 0.75rem;
+            color: #757575;
+            margin-top: 2px;
+        }
+
+        .floor-connector {
+            width: 4px;
+            height: 12px;
+            background: linear-gradient(to bottom, #4CAF50, #81C784);
+        }
+
+        /* 设施图例 */
+        .facility-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #E0E0E0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: #757575;
+        }
+
+        .legend-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+        }
+
+        /* 8号线线路图 */
+        .line8-visual {
+            background: linear-gradient(90deg, #E8F5E9 0%, #FFFFFF 100%);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .line8-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .line8-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #37474F;
+            margin-bottom: 8px;
+        }
+
+        .line8-subtitle { color: #757575; }
+
+        .line8-route {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .line8-path {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+            transform: translateY(-50%);
+            border-radius: 4px;
+        }
+
+        .line8-stations {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .line8-station {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .line8-station:hover { background: rgba(76, 175, 80, 0.1); }
+
+        .station-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #4CAF50;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .line8-station:hover .station-dot {
+            transform: scale(1.3);
+            box-shadow: 0 0 16px rgba(76, 175, 80, 0.5);
+        }
+
+        .station-dot.transfer { background: #FF7043; }
+        .station-dot.terminal { background: #FFA726; }
+
+        .station-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #37474F;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .station-transfer-badge {
+            font-size: 0.625rem;
+            color: #FF7043;
+            margin-top: 4px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .line8-stations { flex-wrap: wrap; }
+            .line8-station { width: 25%; margin-bottom: 16px; }
+            .line8-path { display: none; }
+            .floor-content { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">8</span>
+                <span>郑州地铁8号线</span>
+            </a>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="route.html" class="nav-link">线路站点</a>
+                <a href="operation.html" class="nav-link">运营分析</a>
+                <a href="transfer.html" class="nav-link">换乘枢纽</a>
+                <a href="map.html" class="nav-link active">线路地图</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 页面头部 -->
+    <header class="page-header">
+        <div class="container">
+            <h1 class="page-title">郑州地铁线路图</h1>
+            <p class="page-subtitle">交互式站点地图 - 点击站点查看三维结构和设施位置</p>
+        </div>
+    </header>
+
+    <!-- 8号线可视化线路图 -->
+    <section class="section">
+        <div class="container">
+            <div class="line8-visual">
+                <div class="line8-header">
+                    <h3 class="line8-title">郑州地铁8号线一期</h3>
+                    <p class="line8-subtitle">天健湖站 ↔ 鲁庙站 | 全长约51.78公里 | 28座车站</p>
+                </div>
+                <div class="line8-route">
+                    <div class="line8-path"></div>
+                    <div class="line8-stations" id="line8Stations"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 换乘线路概览 -->
+    <section class="section" style="background: #1a1a2e;">
+        <div class="container">
+            <h2 class="section-title" style="color: white; margin-bottom: 32px;">换乘线路概览</h2>
+            
+            <div class="grid-2" style="gap: 16px;">
+                <div class="metro-line line-1">
+                    <div class="line-header">
+                        <div class="line-color" style="background: #F44336;"></div>
+                        <span class="line-name">1号线</span>
+                    </div>
+                    <div class="stations-row">
+                        <div class="station-node" onclick="showStationDetail('郑州大学')">郑州大学</div>
+                        <div class="station-node" onclick="showStationDetail('郑州东站')">郑州东站</div>
+                    </div>
+                </div>
+
+                <div class="metro-line line-2">
+                    <div class="line-header">
+                        <div class="line-color" style="background: #E91E63;"></div>
+                        <span class="line-name">2号线</span>
+                    </div>
+                    <div class="stations-row">
+                        <div class="station-node" onclick="showStationDetail('东风路')">东风路</div>
+                    </div>
+                </div>
+
+                <div class="metro-line line-3">
+                    <div class="line-header">
+                        <div class="line-color" style="background: #FF9800;"></div>
+                        <span class="line-name">3号线</span>
+                    </div>
+                    <div class="stations-row">
+                        <div class="station-node" onclick="showStationDetail('同乐')">同乐</div>
+                        <div class="station-node" onclick="showStationDetail('圃田西')">圃田西</div>
+                    </div>
+                </div>
+
+                <div class="metro-line line-4">
+                    <div class="line-header">
+                        <div class="line-color" style="background: #00BCD4;"></div>
+                        <span class="line-name">4号线</span>
+                    </div>
+                    <div class="stations-row">
+                        <div class="station-node" onclick="showStationDetail('龙湖中环南')">龙湖中环南</div>
+                    </div>
+                </div>
+
+                <div class="metro-line line-5">
+                    <div class="line-header">
+                        <div class="line-color" style="background: #9C27B0;"></div>
+                        <span class="line-name">5号线</span>
+                    </div>
+                    <div class="stations-row">
+                        <div class="station-node" onclick="showStationDetail('郑州东站')">郑州东站</div>
+                    </div>
+                </div>
+
+                <div class="metro-line line-6">
+                    <div class="line-header">
+                        <div class="line-color" style="background: #3F51B5;"></div>
+                        <span class="line-name">6号线</span>
+                    </div>
+                    <div class="stations-row">
+                        <div class="station-node" onclick="showStationDetail('小营')">小营</div>
+                    </div>
+                </div>
+
+                <div class="metro-line line-7">
+                    <div class="line-header">
+                        <div class="line-color" style="background: #673AB7;"></div>
+                        <span class="line-name">7号线</span>
+                    </div>
+                    <div class="stations-row">
+                        <div class="station-node" onclick="showStationDetail('白庙')">白庙</div>
+                    </div>
+                </div>
+
+                <div class="metro-line line-12">
+                    <div class="line-header">
+                        <div class="line-color" style="background: #795548;"></div>
+                        <span class="line-name">12号线</span>
+                    </div>
+                    <div class="stations-row">
+                        <div class="station-node" onclick="showStationDetail('高铁公园')">高铁公园</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 站点详情弹窗 -->
+    <div class="station-modal" id="stationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" id="modalStationName">站点名称</div>
+                    <div style="font-size: 0.875rem; opacity: 0.8; margin-top: 4px;" id="modalStationType">站点类型</div>
+                </div>
+                <span class="modal-close" onclick="closeModal()">×</span>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p>城市公共交通课程报告 - 郑州地铁8号线一期调研</p>
+            <p style="font-size: 0.875rem; opacity: 0.6;">数据来源：郑州地铁官方公告</p>
+            <p style="font-size: 0.875rem; opacity: 0.8; margin-top: 16px;">© 2026 李政聪（侵权必究）</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // 站点数据（包含详细设施位置）
+        const stationsData = {
+            '天健湖': {
+                type: '起点站',
+                transfer: null,
+                description: '位于高新区天健湖畔，是8号线西部起点站',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '上行站台东侧', icon: '🚻' },
+                        { name: '无障碍设施', location: '站台中部', icon: '♿' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧入口', icon: '🎫' },
+                        { name: '便利店', location: '站厅西侧', icon: '🏪' },
+                        { name: 'ATM机', location: '站厅东侧', icon: '🏧' }
+                    ]}
+                ]
+            },
+            '轻工业大学': {
+                type: '中间站',
+                transfer: null,
+                description: '服务郑州轻工业大学师生及周边居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台西侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口两侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '祥营': {
+                type: '中间站',
+                transfer: null,
+                description: '服务祥营社区及周边区域',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '上行站台西侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '郑州大学': {
+                type: '换乘站',
+                transfer: ['1号线'],
+                description: '郑州大学站是重要的教育枢纽，可换乘1号线',
+                floors: [
+                    { name: 'B1层 - 换乘通道', labelClass: 'b1', facilities: [
+                        { name: '1号线换乘', location: '东侧通道', icon: '🔄' },
+                        { name: '便利店', location: '换乘通道中部', icon: '🏪' },
+                        { name: '卫生间', location: '换乘通道南侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 8号线站台', labelClass: 'b2', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' }
+                    ]},
+                    { name: 'B3层 - 站厅层', labelClass: 'b3', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' },
+                        { name: 'ATM机', location: '站厅西侧', icon: '🏧' },
+                        { name: '无障碍设施', location: '站厅东侧', icon: '♿' }
+                    ]}
+                ]
+            },
+            '银屏路': {
+                type: '中间站',
+                transfer: null,
+                description: '服务银屏路沿线居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '冬青街': {
+                type: '中间站',
+                transfer: null,
+                description: '服务冬青街商圈及周边企业',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '上行站台东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅两侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '南流': {
+                type: '中间站',
+                transfer: null,
+                description: '服务南流社区居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台西侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '大学科技园': {
+                type: '中间站',
+                transfer: null,
+                description: '服务大学科技园企业及员工',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '上行站台西侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' },
+                        { name: '便利店', location: '站厅东侧', icon: '🏪' }
+                    ]}
+                ]
+            },
+            '五龙口': {
+                type: '中间站',
+                transfer: null,
+                description: '服务五龙口区域居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '同乐': {
+                type: '换乘站',
+                transfer: ['3号线'],
+                description: '可换乘3号线，服务同乐社区及周边',
+                floors: [
+                    { name: 'B1层 - 换乘通道', labelClass: 'b1', facilities: [
+                        { name: '3号线换乘', location: '西侧通道', icon: '🔄' },
+                        { name: '卫生间', location: '换乘通道东侧', icon: '🚻' },
+                        { name: '便利店', location: '换乘通道北侧', icon: '🏪' }
+                    ]},
+                    { name: 'B2层 - 8号线站台', labelClass: 'b2', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' }
+                    ]},
+                    { name: 'B3层 - 站厅层', labelClass: 'b3', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '省中医院': {
+                type: '中间站',
+                transfer: null,
+                description: '服务省中医院及周边居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '上行站台东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '白庙': {
+                type: '换乘站',
+                transfer: ['7号线'],
+                description: '可换乘7号线，服务白庙社区',
+                floors: [
+                    { name: 'B1层 - 换乘通道', labelClass: 'b1', facilities: [
+                        { name: '7号线换乘', location: '南侧通道', icon: '🔄' },
+                        { name: '卫生间', location: '换乘通道北侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 8号线站台', labelClass: 'b2', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' }
+                    ]},
+                    { name: 'B3层 - 站厅层', labelClass: 'b3', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '东风路': {
+                type: '换乘站',
+                transfer: ['2号线'],
+                description: '东风路商圈重要换乘站，可换乘2号线',
+                floors: [
+                    { name: 'B1层 - 2号线站台', labelClass: 'b1', facilities: [
+                        { name: '2号线站台', location: '东西两侧', icon: '🚇' },
+                        { name: '换乘通道', location: '南北两侧', icon: '🔄' }
+                    ]},
+                    { name: 'B2层 - 8号线站台', labelClass: 'b2', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B3层 - 站厅层', labelClass: 'b3', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' },
+                        { name: '便利店', location: '站厅西侧', icon: '🏪' },
+                        { name: 'ATM机', location: '站厅东侧', icon: '🏧' }
+                    ]}
+                ]
+            },
+            '枣庄': {
+                type: '中间站',
+                transfer: null,
+                description: '服务枣庄社区居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台西侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '小营': {
+                type: '换乘站',
+                transfer: ['6号线'],
+                description: '可换乘6号线，服务小营区域',
+                floors: [
+                    { name: 'B1层 - 换乘通道', labelClass: 'b1', facilities: [
+                        { name: '6号线换乘', location: '东侧通道', icon: '🔄' },
+                        { name: '卫生间', location: '换乘通道西侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 8号线站台', labelClass: 'b2', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' }
+                    ]},
+                    { name: 'B3层 - 站厅层', labelClass: 'b3', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '龙湖中环南': {
+                type: '换乘站',
+                transfer: ['4号线'],
+                description: '郑东新区重要换乘站，可换乘4号线',
+                floors: [
+                    { name: 'B1层 - 换乘通道', labelClass: 'b1', facilities: [
+                        { name: '4号线换乘', location: '北侧通道', icon: '🔄' },
+                        { name: '卫生间', location: '换乘通道南侧', icon: '🚻' },
+                        { name: '便利店', location: '换乘通道东侧', icon: '🏪' }
+                    ]},
+                    { name: 'B2层 - 8号线站台', labelClass: 'b2', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' }
+                    ]},
+                    { name: 'B3层 - 站厅层', labelClass: 'b3', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' },
+                        { name: 'ATM机', location: '站厅西侧', icon: '🏧' }
+                    ]}
+                ]
+            },
+            '郑大一附院东区': {
+                type: '中间站',
+                transfer: null,
+                description: '服务郑大一附院东区及周边',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '上行站台东侧', icon: '🚻' },
+                        { name: '无障碍设施', location: '站台中部', icon: '♿' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '高铁公园': {
+                type: '换乘站',
+                transfer: ['12号线'],
+                description: '可换乘12号线，靠近高铁公园',
+                floors: [
+                    { name: 'B1层 - 换乘通道', labelClass: 'b1', facilities: [
+                        { name: '12号线换乘', location: '南侧通道', icon: '🔄' },
+                        { name: '卫生间', location: '换乘通道北侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 8号线站台', labelClass: 'b2', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' }
+                    ]},
+                    { name: 'B3层 - 站厅层', labelClass: 'b3', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '畅和街': {
+                type: '中间站',
+                transfer: null,
+                description: '服务畅和街沿线居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '郑州东站': {
+                type: '核心换乘站',
+                transfer: ['1号线', '5号线'],
+                description: '郑州东站是全线换乘流量最大站点，衔接高铁郑州东站',
+                floors: [
+                    { name: '1层 - 地面层', labelClass: 'ground', facilities: [
+                        { name: '高铁换乘', location: '东侧高铁入口', icon: '🚄' },
+                        { name: '公交枢纽', location: '南侧公交站', icon: '🚌' },
+                        { name: '出租车停靠点', location: '北侧出租车上客区', icon: '🚕' }
+                    ]},
+                    { name: 'B1层 - 换乘大厅', labelClass: 'b1', facilities: [
+                        { name: '1号线换乘', location: '西侧通道', icon: '🔄' },
+                        { name: '5号线换乘', location: '南侧通道', icon: '🔄' },
+                        { name: '便利店', location: '换乘大厅中部', icon: '🏪' },
+                        { name: '餐饮区', location: '换乘大厅东侧', icon: '🍔' }
+                    ]},
+                    { name: 'B2层 - 8号线站台', labelClass: 'b2', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '上行站台东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B3层 - 站厅层', labelClass: 'b3', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' },
+                        { name: 'ATM机', location: '站厅西侧', icon: '🏧' },
+                        { name: '无障碍设施', location: '站厅东侧', icon: '♿' }
+                    ]}
+                ]
+            },
+            '圃田西': {
+                type: '换乘站',
+                transfer: ['3号线'],
+                description: '可换乘3号线，服务圃田区域',
+                floors: [
+                    { name: 'B1层 - 换乘通道', labelClass: 'b1', facilities: [
+                        { name: '3号线换乘', location: '西侧通道', icon: '🔄' },
+                        { name: '卫生间', location: '换乘通道东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 8号线站台', labelClass: 'b2', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' }
+                    ]},
+                    { name: 'B3层 - 站厅层', labelClass: 'b3', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '圃田': {
+                type: '中间站',
+                transfer: null,
+                description: '服务圃田社区居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台西侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '省社科院': {
+                type: '中间站',
+                transfer: null,
+                description: '服务省社科院及周边',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '上行站台东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '福泽路': {
+                type: '中间站',
+                transfer: null,
+                description: '服务福泽路沿线居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台西侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '李湖桥': {
+                type: '中间站',
+                transfer: null,
+                description: '服务李湖桥社区居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '上行站台东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '龙王庙': {
+                type: '中间站',
+                transfer: null,
+                description: '服务龙王庙社区居民',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台西侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            },
+            '绿博园': {
+                type: '中间站',
+                transfer: null,
+                description: '服务绿博园景区游客',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '上行站台东侧', icon: '🚻' },
+                        { name: '无障碍设施', location: '站台中部', icon: '♿' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅中央', icon: '👤' },
+                        { name: '自动售票机', location: '站厅入口', icon: '🎫' },
+                        { name: '便利店', location: '站厅西侧', icon: '🏪' }
+                    ]}
+                ]
+            },
+            '鲁庙': {
+                type: '终点站',
+                transfer: null,
+                description: '位于中牟县，是8号线东部终点站',
+                floors: [
+                    { name: 'B1层 - 站台层', labelClass: 'b1', facilities: [
+                        { name: '上行站台', location: '北侧', icon: '🚇' },
+                        { name: '下行站台', location: '南侧', icon: '🚇' },
+                        { name: '卫生间', location: '下行站台东侧', icon: '🚻' }
+                    ]},
+                    { name: 'B2层 - 站厅层', labelClass: 'b2', facilities: [
+                        { name: '客服中心', location: '站厅北侧', icon: '👤' },
+                        { name: '自动售票机', location: '站厅南侧', icon: '🎫' }
+                    ]}
+                ]
+            }
+        };
+
+        // 8号线站点列表
+        const line8Stations = [
+            { name: '天健湖', type: '起点站', transfer: null },
+            { name: '轻工业大学', type: '中间站', transfer: null },
+            { name: '祥营', type: '中间站', transfer: null },
+            { name: '郑州大学', type: '换乘站', transfer: ['1号线'] },
+            { name: '银屏路', type: '中间站', transfer: null },
+            { name: '冬青街', type: '中间站', transfer: null },
+            { name: '南流', type: '中间站', transfer: null },
+            { name: '大学科技园', type: '中间站', transfer: null },
+            { name: '五龙口', type: '中间站', transfer: null },
+            { name: '同乐', type: '换乘站', transfer: ['3号线'] },
+            { name: '省中医院', type: '中间站', transfer: null },
+            { name: '白庙', type: '换乘站', transfer: ['7号线'] },
+            { name: '东风路', type: '换乘站', transfer: ['2号线'] },
+            { name: '枣庄', type: '中间站', transfer: null },
+            { name: '小营', type: '换乘站', transfer: ['6号线'] },
+            { name: '龙湖中环南', type: '换乘站', transfer: ['4号线'] },
+            { name: '郑大一附院东区', type: '中间站', transfer: null },
+            { name: '高铁公园', type: '换乘站', transfer: ['12号线'] },
+            { name: '畅和街', type: '中间站', transfer: null },
+            { name: '郑州东站', type: '换乘站', transfer: ['1号线', '5号线'] },
+            { name: '圃田西', type: '换乘站', transfer: ['3号线'] },
+            { name: '圃田', type: '中间站', transfer: null },
+            { name: '省社科院', type: '中间站', transfer: null },
+            { name: '福泽路', type: '中间站', transfer: null },
+            { name: '李湖桥', type: '中间站', transfer: null },
+            { name: '龙王庙', type: '中间站', transfer: null },
+            { name: '绿博园', type: '中间站', transfer: null },
+            { name: '鲁庙', type: '终点站', transfer: null }
+        ];
+
+        // 渲染8号线站点
+        function renderLine8Stations() {
+            const container = document.getElementById('line8Stations');
+            container.innerHTML = line8Stations.map(station => {
+                const isTransfer = station.transfer !== null;
+                const isTerminal = station.type === '起点站' || station.type === '终点站';
+                return `
+                    <div class="line8-station" onclick="showStationDetail('${station.name}')">
+                        <div class="station-dot ${isTransfer ? 'transfer' : ''} ${isTerminal ? 'terminal' : ''}"></div>
+                        <div class="station-name">${station.name}</div>
+                        ${isTransfer ? `<div class="station-transfer-badge">换乘${station.transfer.join('、')}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 显示站点详情弹窗
+        function showStationDetail(stationName) {
+            const station = stationsData[stationName];
+            if (!station) return;
+
+            document.getElementById('modalStationName').textContent = stationName;
+            document.getElementById('modalStationType').textContent = station.type + (station.transfer ? ' · 可换乘' + station.transfer.join('、') : '');
+            
+            // 生成3D结构图
+            let bodyContent = `
+                <p style="color: #757575; margin-bottom: 24px;">${station.description}</p>
+                
+                <div class="section-title">🏢 站点三维结构图</div>
+                <div class="station-3d-layout">
+                    <div class="layout-title">${stationName}站 - 分层结构示意图</div>
+                    <div class="floor-stack">
+            `;
+
+            // 反转楼层顺序（从地面到地下）
+            const reversedFloors = [...station.floors].reverse();
+            
+            reversedFloors.forEach((floor, index) => {
+                bodyContent += `
+                    ${index > 0 ? '<div class="floor-connector"></div>' : ''}
+                    <div class="floor-layer">
+                        <div class="floor-label ${floor.labelClass}">${floor.name}</div>
+                        <div class="floor-content">
+                            ${floor.facilities.map(facility => `
+                                <div class="facility-item">
+                                    <div class="facility-icon-box">${facility.icon}</div>
+                                    <div class="facility-info">
+                                        <div class="facility-name">${facility.name}</div>
+                                        <div class="facility-location">📍 ${facility.location}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            bodyContent += `
+                    </div>
+                </div>
+                
+                <div class="facility-legend">
+                    <div class="legend-item"><div class="legend-icon" style="background: #4CAF50;">🚻</div><span>卫生间</span></div>
+                    <div class="legend-item"><div class="legend-icon" style="background: #FF9800;">🎫</div><span>自动售票机</span></div>
+                    <div class="legend-item"><div class="legend-icon" style="background: #2196F3;">👤</div><span>客服中心</span></div>
+                    <div class="legend-item"><div class="legend-icon" style="background: #9C27B0;">🏪</div><span>便利店</span></div>
+                    <div class="legend-item"><div class="legend-icon" style="background: #607D8B;">🏧</div><span>ATM机</span></div>
+                    <div class="legend-item"><div class="legend-icon" style="background: #E91E63;">♿</div><span>无障碍设施</span></div>
+                    <div class="legend-item"><div class="legend-icon" style="background: #F44336;">🚇</div><span>站台</span></div>
+                    <div class="legend-item"><div class="legend-icon" style="background: #FF7043;">🔄</div><span>换乘通道</span></div>
+                </div>
+            `;
+
+            document.getElementById('modalBody').innerHTML = bodyContent;
+            document.getElementById('stationModal').classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('stationModal').classList.remove('active');
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('stationModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', renderLine8Stations);
+    </script>
+</body>
+</html>
