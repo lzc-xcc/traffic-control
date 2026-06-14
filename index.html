@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交通信号配时计算学习平台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <span class="nav-logo-icon">🚦</span>
+                <span>信号配时学习平台</span>
+            </a>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html" class="nav-link active">首页</a>
+                <a href="calculator.html" class="nav-link">配时计算器</a>
+                <a href="learning.html" class="nav-link">学习指南</a>
+                <a href="examples.html" class="nav-link">例题演示</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1 class="page-title">交通信号配时计算学习平台</h1>
+            <p class="page-subtitle">基于《交通管理与控制》教材，引导式学习交叉口信号配时设计的完整流程</p>
+            <div style="margin-top: 40px;">
+                <a href="calculator.html" class="btn btn-primary">
+                    🚀 开始计算
+                </a>
+                <a href="learning.html" class="btn btn-secondary" style="margin-left: 12px;">
+                    📚 学习指南
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 40px; font-size: 1.75rem;">📋 课程设计步骤</h2>
+            <div class="grid-2" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+                <div class="card">
+                    <div class="card-header" style="background: rgba(30, 136, 229, 0.08);">
+                        <span class="card-icon">1️⃣</span>
+                        <span class="card-title">输入数据</span>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-secondary); font-size: 0.875rem;">输入OD矩阵流量数据、交叉口几何参数等基础信息</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" style="background: rgba(67, 160, 71, 0.08);">
+                        <span class="card-icon">2️⃣</span>
+                        <span class="card-title">相位设计</span>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-secondary); font-size: 0.875rem;">分析各进口道车流，设计合理的信号相位方案</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" style="background: rgba(255, 152, 0, 0.08);">
+                        <span class="card-icon">3️⃣</span>
+                        <span class="card-title">配时计算</span>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-secondary); font-size: 0.875rem;">计算黄灯时间、全红时间、信号周期和绿时分配</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header" style="background: rgba(156, 39, 176, 0.08);">
+                        <span class="card-icon">4️⃣</span>
+                        <span class="card-title">结果验证</span>
+                    </div>
+                    <div class="card-body">
+                        <p style="color: var(--text-secondary); font-size: 0.875rem;">检验行人过街时间，输出完整配时方案</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="background: linear-gradient(135deg, rgba(30, 136, 229, 0.05), rgba(67, 160, 71, 0.05));">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 40px; font-size: 1.75rem;">🎯 核心功能</h2>
+            <div class="grid-2" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                <div class="card">
+                    <div class="card-body" style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 16px;">📊</div>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 12px;">OD矩阵输入</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem;">支持自定义输入各进口道转向流量，自动计算直行当量</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body" style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 16px;">⚙️</div>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 12px;">8步配时计算</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem;">严格按照教材步骤，程序化引导完成配时设计</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body" style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 16px;">🎨</div>
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 12px;">可视化展示</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem;">动态展示信号相位切换，直观理解配时方案</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="tip-box">
+                <h4>📖 学习提示</h4>
+                <p>本平台基于《交通管理与控制》教材中的经典例题设计，建议先学习教材第8章"单点交叉口信号控制基础"，再使用本工具进行实践练习。</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" style="background: #1a1a2e; color: white;">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 32px;">📚 参考教材</h2>
+            <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+                <div style="background: rgba(255,255,255,0.1); padding: 24px; border-radius: 12px;">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 12px;">交通管理与控制</h3>
+                    <p style="opacity: 0.8; margin-bottom: 16px;">陈峻, 徐良杰, 朱顺应, 张国强 等著</p>
+                    <p style="opacity: 0.6; font-size: 0.875rem;">第8章 单点交叉口信号控制基础</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>交通信号配时计算学习平台 - 基于《交通管理与控制》教材</p>
+            <p>帮助学生系统化完成交通工程课程设计</p>
+            <p style="font-size: 0.75rem; margin-top: 16px; opacity: 0.6;">© 2026 智能建造竞赛小组</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信号配时计算器 - 交通信号配时计算学习平台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <span class="nav-logo-icon">🚦</span>
+                <span>信号配时学习平台</span>
+            </a>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="calculator.html" class="nav-link active">配时计算器</a>
+                <a href="learning.html" class="nav-link">学习指南</a>
+                <a href="examples.html" class="nav-link">例题演示</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1 class="page-title">信号配时计算器</h1>
+            <p class="page-subtitle">按照教材8步法，一步步完成交叉口信号配时设计</p>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 12.5%;"></div>
+            </div>
+            
+            <div class="steps-container">
+                <div class="step-item completed" id="step1">
+                    <span class="step-number">1</span>
+                    <span class="step-label">输入数据</span>
+                </div>
+                <div class="step-item" id="step2">
+                    <span class="step-number">2</span>
+                    <span class="step-label">相位设计</span>
+                </div>
+                <div class="step-item" id="step3">
+                    <span class="step-number">3</span>
+                    <span class="step-label">直行当量</span>
+                </div>
+                <div class="step-item" id="step4">
+                    <span class="step-number">4</span>
+                    <span class="step-label">流量比分析</span>
+                </div>
+                <div class="step-item" id="step5">
+                    <span class="step-number">5</span>
+                    <span class="step-label">黄灯全红</span>
+                </div>
+                <div class="step-item" id="step6">
+                    <span class="step-number">6</span>
+                    <span class="step-label">信号周期</span>
+                </div>
+                <div class="step-item" id="step7">
+                    <span class="step-number">7</span>
+                    <span class="step-label">绿时分配</span>
+                </div>
+                <div class="step-item" id="step8">
+                    <span class="step-number">8</span>
+                    <span class="step-label">行人检验</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="card" id="stepCard1">
+                <div class="card-header">
+                    <span class="card-icon">📝</span>
+                    <span class="card-title">步骤1：输入基础数据</span>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+                        <div>
+                            <h4 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);">📊 流量数据（VEH/h）</h4>
+                            <div class="od-matrix-container">
+                                <table class="od-matrix">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>西进口</th>
+                                            <th>东进口</th>
+                                            <th>南进口</th>
+                                            <th>北进口</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>左转</th>
+                                            <td><input type="number" id="wLeft" value="35" min="0"></td>
+                                            <td><input type="number" id="eLeft" value="30" min="0"></td>
+                                            <td><input type="number" id="sLeft" value="230" min="0"></td>
+                                            <td><input type="number" id="nLeft" value="250" min="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>直行</th>
+                                            <td><input type="number" id="wStraight" value="620" min="0"></td>
+                                            <td><input type="number" id="eStraight" value="580" min="0"></td>
+                                            <td><input type="number" id="sStraight" value="750" min="0"></td>
+                                            <td><input type="number" id="nStraight" value="800" min="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <th>右转</th>
+                                            <td><input type="number" id="wRight" value="65" min="0"></td>
+                                            <td><input type="number" id="eRight" value="60" min="0"></td>
+                                            <td><input type="number" id="sRight" value="180" min="0"></td>
+                                            <td><input type="number" id="nRight" value="175" min="0"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.9375rem; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);">⚙️ 设计参数</h4>
+                            <div class="form-group">
+                                <label class="form-label">高峰小时流量系数 (PHF)</label>
+                                <input type="number" id="phf" class="form-control" value="0.95" step="0.01" min="0" max="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">设计饱和度 (v/c)</label>
+                                <input type="number" id="vc" class="form-control" value="0.95" step="0.01" min="0" max="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">设计车速 (km/h)</label>
+                                <input type="number" id="speed" class="form-control" value="40" min="10" max="80">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">人行横道宽度 (m)</label>
+                                <input type="number" id="crosswalkWidth" class="form-control" value="3" step="0.5" min="2" max="6">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">行人步速 (m/s)</label>
+                                <input type="number" id="pedSpeed" class="form-control" value="1.2" step="0.1" min="0.8" max="1.5">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="calculateStep1()">
+                        📈 计算直行当量
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="stepCard2" style="display: none;">
+                <div class="card-header">
+                    <span class="card-icon">🚦</span>
+                    <span class="card-title">步骤2：相位方案设计</span>
+                </div>
+                <div class="card-body">
+                    <div class="tip-box">
+                        <h4>💡 知识点</h4>
+                        <p>左转保护相位判断条件：q_LT > 200 × N（N为进口道车道数）。当左转流量较大时，需要设置左转保护相位以减少冲突。</p>
+                    </div>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>进口道</th>
+                                <th>左转流量</th>
+                                <th>判断条件</th>
+                                <th>是否需要保护相位</th>
+                            </tr>
+                        </thead>
+                        <tbody id="phaseTable"></tbody>
+                    </table>
+
+                    <div style="margin-top: 24px; padding: 20px; background: rgba(30, 136, 229, 0.05); border-radius: var(--radius-md);">
+                        <h4 style="font-weight: 600; margin-bottom: 12px;">📐 相位方案</h4>
+                        <div id="phaseDiagram">
+                            <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+                                <div style="padding: 16px; background: white; border-radius: 8px; text-align: center; min-width: 120px;">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #4CAF50; margin-bottom: 8px;">Φ1</div>
+                                    <div style="font-size: 0.875rem; color: var(--text-secondary);">南北向左转</div>
+                                </div>
+                                <div style="padding: 16px; background: white; border-radius: 8px; text-align: center; min-width: 120px;">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #FFC107; margin-bottom: 8px;">Φ2</div>
+                                    <div style="font-size: 0.875rem; color: var(--text-secondary);">南北向直右</div>
+                                </div>
+                                <div style="padding: 16px; background: white; border-radius: 8px; text-align: center; min-width: 120px;">
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #F44336; margin-bottom: 8px;">Φ3</div>
+                                    <div style="font-size: 0.875rem; color: var(--text-secondary);">东西向直右+左转</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="calculateStep2()">
+                        ➡️ 下一步：直行当量计算
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="stepCard3" style="display: none;">
+                <div class="card-header">
+                    <span class="card-icon">🔢</span>
+                    <span class="card-title">步骤3：车道组直行当量计算</span>
+                </div>
+                <div class="card-body">
+                    <div class="tip-box">
+                        <h4>💡 知识点</h4>
+                        <p>左转车直行当量系数约为1.4，右转车直行当量系数约为1.3。直行当量 = 左转流量×1.4 + 直行流量×1.0 + 右转流量×1.3</p>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>进口道</th>
+                                <th>左转</th>
+                                <th>直行</th>
+                                <th>右转</th>
+                                <th>直行当量</th>
+                            </tr>
+                        </thead>
+                        <tbody id="equivalentTable"></tbody>
+                    </table>
+
+                    <div class="step-formula">
+                        直行当量 = 左转流量 × 1.4 + 直行流量 × 1.0 + 右转流量 × 1.3
+                    </div>
+
+                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="calculateStep3()">
+                        ➡️ 下一步：流量比分析
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="stepCard4" style="display: none;">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <span class="card-title">步骤4：流量比分析与关键车流确定</span>
+                </div>
+                <div class="card-body">
+                    <div class="tip-box">
+                        <h4>💡 知识点</h4>
+                        <p>关键车流是指各相位中直行当量最大的车流。流量比 y = q/S，其中S为饱和流量（通常取1800 VEH/h/车道）。</p>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>相位</th>
+                                <th>进口道</th>
+                                <th>直行当量</th>
+                                <th>关键流量</th>
+                                <th>流量比 y</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flowRatioTable"></tbody>
+                    </table>
+
+                    <div class="step-result">
+                        <strong>总流量比 Y = y₁ + y₂ + y₃ = <span id="totalY"></span></strong>
+                        <p style="font-weight: 400; color: var(--text-secondary); font-size: 0.875rem; margin-top: 8px;">
+                            判断：Y < 0.9，表示可进行下一步设计
+                        </p>
+                    </div>
+
+                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="calculateStep4()">
+                        ➡️ 下一步：黄灯时间和全红时间
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="stepCard5" style="display: none;">
+                <div class="card-header">
+                    <span class="card-icon">⚠️</span>
+                    <span class="card-title">步骤5：确定黄灯时间和全红时间</span>
+                </div>
+                <div class="card-body">
+                    <div class="tip-box">
+                        <h4>💡 知识点</h4>
+                        <p>黄灯时间用于清空交叉口内车辆，全红时间用于确保行人安全过街。黄灯时间公式：A = t_react + v/(3.6×(2×w+0))</p>
+                    </div>
+
+                    <div class="step-formula">
+                        黄灯时间：A = t_react + v / (3.6 × (2 × w + 0))<br>
+                        全红时间：r = (l + w) / (v/3.6)
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>参数</th>
+                                <th>符号</th>
+                                <th>取值</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>驾驶员反应时间</td>
+                                <td>t_react</td>
+                                <td>1.0s</td>
+                                <td>标准值</td>
+                            </tr>
+                            <tr>
+                                <td>设计车速</td>
+                                <td>v</td>
+                                <td><span id="speedValue">40</span> km/h</td>
+                                <td>输入值</td>
+                            </tr>
+                            <tr>
+                                <td>人行横道宽度</td>
+                                <td>w</td>
+                                <td><span id="widthValue">3</span> m</td>
+                                <td>输入值</td>
+                            </tr>
+                            <tr>
+                                <td>平均车辆长度</td>
+                                <td>l</td>
+                                <td>5m</td>
+                                <td>标准值</td>
+                            </tr>
+                            <tr>
+                                <td>黄灯时间</td>
+                                <td>A</td>
+                                <td><span id="yellowTime">3</span> s</td>
+                                <td>计算值</td>
+                            </tr>
+                            <tr>
+                                <td>全红时间</td>
+                                <td>r</td>
+                                <td><span id="allRedTime">2</span> s</td>
+                                <td>计算值</td>
+                            </tr>
+                            <tr>
+                                <td>绿间间隔时间</td>
+                                <td>I = A + r</td>
+                                <td><span id="intervalTime">5</span> s</td>
+                                <td>计算值</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="calculateStep5()">
+                        ➡️ 下一步：信号损失时间
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="stepCard6" style="display: none;">
+                <div class="card-header">
+                    <span class="card-icon">⏱️</span>
+                    <span class="card-title">步骤6：确定信号周期时长</span>
+                </div>
+                <div class="card-body">
+                    <div class="tip-box">
+                        <h4>💡 知识点</h4>
+                        <p>信号周期公式：C = L / (1 - PHF × (v/c) × Y)，其中L为总损失时间。启动损失通常取3s。</p>
+                    </div>
+
+                    <div class="step-formula">
+                        总损失时间：L = n × (启动损失 + 全红时间)<br>
+                        信号周期：C = L / (1 - PHF × (v/c) × Y)
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>参数</th>
+                                <th>符号</th>
+                                <th>取值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>启动损失</td>
+                                <td>启动损失</td>
+                                <td>3s/相位</td>
+                            </tr>
+                            <tr>
+                                <td>相位数</td>
+                                <td>n</td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>单相位损失时间</td>
+                                <td>L_i</td>
+                                <td><span id="singleLoss">5</span> s</td>
+                            </tr>
+                            <tr>
+                                <td>总损失时间</td>
+                                <td>L</td>
+                                <td><span id="totalLoss">15</span> s</td>
+                            </tr>
+                            <tr>
+                                <td>计算周期</td>
+                                <td>C₀</td>
+                                <td><span id="calcCycle">107.1</span> s</td>
+                            </tr>
+                            <tr>
+                                <td>取整周期</td>
+                                <td>C</td>
+                                <td><span id="finalCycle">110</span> s</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="calculateStep6()">
+                        ➡️ 下一步：绿时分配
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="stepCard7" style="display: none;">
+                <div class="card-header">
+                    <span class="card-icon">🟢</span>
+                    <span class="card-title">步骤7：绿时分配</span>
+                </div>
+                <div class="card-body">
+                    <div class="tip-box">
+                        <h4>💡 知识点</h4>
+                        <p>有效绿灯时间 g_e = (C - L) × (y_i / Y)，实际绿灯时间 g = g_e - A + l（取整后调整）</p>
+                    </div>
+
+                    <div class="step-formula">
+                        有效绿灯时间：g_ei = (C - L) × (y_i / Y)<br>
+                        绿灯显示时间：g_i = g_ei - A + l（取整）
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>相位</th>
+                                <th>流量比 y_i</th>
+                                <th>有效绿灯 g_ei</th>
+                                <th>绿灯显示时间</th>
+                                <th>黄灯时间</th>
+                                <th>全红时间</th>
+                                <th>相位时长</th>
+                            </tr>
+                        </thead>
+                        <tbody id="greenTimeTable"></tbody>
+                    </table>
+
+                    <div class="step-result">
+                        <strong>周期总时长 = <span id="cycleSum">110</span> s ✓</strong>
+                    </div>
+
+                    <button class="btn btn-primary" style="margin-top: 24px;" onclick="calculateStep7()">
+                        ➡️ 下一步：行人过街时间检验
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="stepCard8" style="display: none;">
+                <div class="card-header">
+                    <span class="card-icon">🚶</span>
+                    <span class="card-title">步骤8：行人过街时间检验</span>
+                </div>
+                <div class="card-body">
+                    <div class="tip-box">
+                        <h4>💡 知识点</h4>
+                        <p>行人过街最小绿灯时间：g_min = t_p + 5，其中t_p = w / v_p。必须确保各相位绿灯时间 ≥ g_min</p>
+                    </div>
+
+                    <div class="step-formula">
+                        行人过街时间：t_p = w / v_p<br>
+                        最小绿灯时间：g_min = t_p + 5
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>相位</th>
+                                <th>绿灯时间</th>
+                                <th>行人过街需求</th>
+                                <th>最小绿灯要求</th>
+                                <th>是否满足</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pedTable"></tbody>
+                    </table>
+
+                    <div class="step-result" id="pedResult">
+                        <strong>✅ 行人过街时间检验通过！</strong>
+                    </div>
+
+                    <div style="margin-top: 32px; padding: 24px; background: linear-gradient(135deg, rgba(67, 160, 71, 0.08), rgba(30, 136, 229, 0.05)); border-radius: var(--radius-lg);">
+                        <h4 style="font-weight: 600; margin-bottom: 16px; color: var(--text-primary);">📋 配时方案汇总</h4>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                            <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+                                <div style="font-size: 2rem; font-weight: 700; color: var(--primary);" id="summaryCycle">110</div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary);">信号周期(s)</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #4CAF50;" id="summaryG1">23</div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary);">Φ1绿灯(s)</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #FFC107;" id="summaryG2">46</div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary);">Φ2绿灯(s)</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+                                <div style="font-size: 2rem; font-weight: 700; color: #F44336;" id="summaryG3">26</div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary);">Φ3绿灯(s)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="visualization-container" style="margin-top: 24px;">
+                        <h4 style="font-weight: 600; margin-bottom: 24px;">🎮 信号配时可视化演示</h4>
+                        <div class="signal-timing-display" id="signalDisplay">
+                            <div class="signal-phase">
+                                <div class="signal-circle green" id="signal1">Φ1</div>
+                                <div class="signal-time" id="time1">23</div>
+                                <div class="signal-label">南北左转</div>
+                            </div>
+                            <div class="signal-phase">
+                                <div class="signal-circle yellow" id="signal2">Φ2</div>
+                                <div class="signal-time" id="time2">46</div>
+                                <div class="signal-label">南北直右</div>
+                            </div>
+                            <div class="signal-phase">
+                                <div class="signal-circle red" id="signal3">Φ3</div>
+                                <div class="signal-time" id="time3">26</div>
+                                <div class="signal-label">东西直右+左转</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" style="margin-top: 20px; float: right;" onclick="startSimulation()">
+                            ▶️ 开始演示
+                        </button>
+                        <div style="clear: both;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>交通信号配时计算学习平台 - 基于《交通管理与控制》教材</p>
+            <p>帮助学生系统化完成交通工程课程设计</p>
+            <p style="font-size: 0.75rem; margin-top: 16px; opacity: 0.6;">© 2026 智能建造竞赛小组</p>
+        </div>
+    </footer>
+
+    <script>
+        let trafficData = {
+            flows: {},
+            params: {},
+            results: {}
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const exampleData = localStorage.getItem('exampleData');
+            if (exampleData) {
+                const data = JSON.parse(exampleData);
+                document.getElementById('wLeft').value = data.wLeft;
+                document.getElementById('wStraight').value = data.wStraight;
+                document.getElementById('wRight').value = data.wRight;
+                document.getElementById('eLeft').value = data.eLeft;
+                document.getElementById('eStraight').value = data.eStraight;
+                document.getElementById('eRight').value = data.eRight;
+                document.getElementById('sLeft').value = data.sLeft;
+                document.getElementById('sStraight').value = data.sStraight;
+                document.getElementById('sRight').value = data.sRight;
+                document.getElementById('nLeft').value = data.nLeft;
+                document.getElementById('nStraight').value = data.nStraight;
+                document.getElementById('nRight').value = data.nRight;
+                document.getElementById('phf').value = data.phf;
+                document.getElementById('vc').value = data.vc;
+                document.getElementById('speed').value = data.speed;
+                document.getElementById('crosswalkWidth').value = data.crosswalkWidth;
+                document.getElementById('pedSpeed').value = data.pedSpeed;
+                localStorage.removeItem('exampleData');
+            }
+        });
+
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        function updateSteps(currentStep) {
+            for (let i = 1; i <= 8; i++) {
+                const step = document.getElementById(`step${i}`);
+                if (i < currentStep) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else if (i === currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('completed', 'active');
+                }
+            }
+            document.getElementById('progressFill').style.width = `${currentStep * 12.5}%`;
+        }
+
+        function calculateStep1() {
+            trafficData.flows = {
+                w: { left: parseInt(document.getElementById('wLeft').value) || 0, straight: parseInt(document.getElementById('wStraight').value) || 0, right: parseInt(document.getElementById('wRight').value) || 0 },
+                e: { left: parseInt(document.getElementById('eLeft').value) || 0, straight: parseInt(document.getElementById('eStraight').value) || 0, right: parseInt(document.getElementById('eRight').value) || 0 },
+                s: { left: parseInt(document.getElementById('sLeft').value) || 0, straight: parseInt(document.getElementById('sStraight').value) || 0, right: parseInt(document.getElementById('sRight').value) || 0 },
+                n: { left: parseInt(document.getElementById('nLeft').value) || 0, straight: parseInt(document.getElementById('nStraight').value) || 0, right: parseInt(document.getElementById('nRight').value) || 0 }
+            };
+            
+            trafficData.params = {
+                phf: parseFloat(document.getElementById('phf').value) || 0.95,
+                vc: parseFloat(document.getElementById('vc').value) || 0.95,
+                speed: parseFloat(document.getElementById('speed').value) || 40,
+                crosswalkWidth: parseFloat(document.getElementById('crosswalkWidth').value) || 3,
+                pedSpeed: parseFloat(document.getElementById('pedSpeed').value) || 1.2
+            };
+
+            document.getElementById('stepCard1').style.display = 'none';
+            document.getElementById('stepCard2').style.display = 'block';
+            updateSteps(2);
+            
+            fillPhaseTable();
+        }
+
+        function fillPhaseTable() {
+            const flows = trafficData.flows;
+            const data = [
+                { name: '西进口', left: flows.w.left, need: flows.w.left > 200 * 3 },
+                { name: '东进口', left: flows.e.left, need: flows.e.left > 200 * 3 },
+                { name: '南进口', left: flows.s.left, need: flows.s.left > 200 * 3 },
+                { name: '北进口', left: flows.n.left, need: flows.n.left > 200 * 3 }
+            ];
+
+            let html = '';
+            data.forEach(item => {
+                html += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.left}</td>
+                        <td>${item.left} ${item.need ? '>' : '<'} 600</td>
+                        <td>${item.need ? '✅ 需要' : '❌ 不需要'}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('phaseTable').innerHTML = html;
+        }
+
+        function calculateStep2() {
+            document.getElementById('stepCard2').style.display = 'none';
+            document.getElementById('stepCard3').style.display = 'block';
+            updateSteps(3);
+            fillEquivalentTable();
+        }
+
+        function fillEquivalentTable() {
+            const flows = trafficData.flows;
+            const data = [
+                { name: '西进口', ...flows.w },
+                { name: '东进口', ...flows.e },
+                { name: '南进口', ...flows.s },
+                { name: '北进口', ...flows.n }
+            ];
+
+            let html = '';
+            data.forEach(item => {
+                const equiv = item.left * 1.4 + item.straight * 1.0 + item.right * 1.3;
+                html += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.left}</td>
+                        <td>${item.straight}</td>
+                        <td>${item.right}</td>
+                        <td><strong>${Math.round(equiv)}</strong></td>
+                    </tr>
+                `;
+            });
+            document.getElementById('equivalentTable').innerHTML = html;
+            
+            trafficData.results.equivalents = {
+                w: flows.w.left * 1.4 + flows.w.straight + flows.w.right * 1.3,
+                e: flows.e.left * 1.4 + flows.e.straight + flows.e.right * 1.3,
+                s: flows.s.left * 1.4 + flows.s.straight + flows.s.right * 1.3,
+                n: flows.n.left * 1.4 + flows.n.straight + flows.n.right * 1.3
+            };
+        }
+
+        function calculateStep3() {
+            document.getElementById('stepCard3').style.display = 'none';
+            document.getElementById('stepCard4').style.display = 'block';
+            updateSteps(4);
+            fillFlowRatioTable();
+        }
+
+        function fillFlowRatioTable() {
+            const equiv = trafficData.results.equivalents;
+            const saturationFlow = 1800;
+            
+            const y1 = Math.max(equiv.s, equiv.n) / saturationFlow;
+            const y2 = Math.max(equiv.s, equiv.n) / saturationFlow;
+            const y3 = Math.max(equiv.w, equiv.e) / saturationFlow;
+            const Y = y1 + y2 + y3;
+
+            trafficData.results.flowRatios = { y1, y2, y3, Y };
+
+            let html = `
+                <tr>
+                    <td>Φ1 (南北左转)</td>
+                    <td>南进口/北进口</td>
+                    <td>${Math.round(Math.max(equiv.s, equiv.n))}</td>
+                    <td>${Math.round(Math.max(equiv.s, equiv.n))}</td>
+                    <td>${y1.toFixed(3)}</td>
+                </tr>
+                <tr>
+                    <td>Φ2 (南北直右)</td>
+                    <td>南进口/北进口</td>
+                    <td>${Math.round(Math.max(equiv.s, equiv.n))}</td>
+                    <td>${Math.round(Math.max(equiv.s, equiv.n))}</td>
+                    <td>${y2.toFixed(3)}</td>
+                </tr>
+                <tr>
+                    <td>Φ3 (东西直右+左转)</td>
+                    <td>西进口/东进口</td>
+                    <td>${Math.round(Math.max(equiv.w, equiv.e))}</td>
+                    <td>${Math.round(Math.max(equiv.w, equiv.e))}</td>
+                    <td>${y3.toFixed(3)}</td>
+                </tr>
+            `;
+            document.getElementById('flowRatioTable').innerHTML = html;
+            document.getElementById('totalY').textContent = Y.toFixed(3);
+        }
+
+        function calculateStep4() {
+            document.getElementById('stepCard4').style.display = 'none';
+            document.getElementById('stepCard5').style.display = 'block';
+            updateSteps(5);
+            calculateYellowRed();
+        }
+
+        function calculateYellowRed() {
+            const params = trafficData.params;
+            const t_react = 1.0;
+            const v = params.speed;
+            const w = params.crosswalkWidth;
+            const l = 5;
+
+            const yellow = t_react + v / (3.6 * (2 * w + 0));
+            const allRed = (l + w) / (v / 3.6);
+            const interval = Math.round(yellow) + Math.round(allRed);
+
+            document.getElementById('speedValue').textContent = v;
+            document.getElementById('widthValue').textContent = w;
+            document.getElementById('yellowTime').textContent = Math.round(yellow);
+            document.getElementById('allRedTime').textContent = Math.round(allRed);
+            document.getElementById('intervalTime').textContent = interval;
+
+            trafficData.results.signalTimes = {
+                yellow: Math.round(yellow),
+                allRed: Math.round(allRed),
+                interval: interval
+            };
+        }
+
+        function calculateStep5() {
+            document.getElementById('stepCard5').style.display = 'none';
+            document.getElementById('stepCard6').style.display = 'block';
+            updateSteps(6);
+            calculateCycle();
+        }
+
+        function calculateCycle() {
+            const params = trafficData.params;
+            const flowRatios = trafficData.results.flowRatios;
+            const signalTimes = trafficData.results.signalTimes;
+            const phaseCount = 3;
+            const startLoss = 3;
+
+            const singleLoss = startLoss + signalTimes.allRed;
+            const totalLoss = phaseCount * singleLoss;
+            
+            const C0 = totalLoss / (1 - params.phf * params.vc * flowRatios.Y);
+            const C = Math.round(C0 / 5) * 5;
+
+            document.getElementById('singleLoss').textContent = singleLoss;
+            document.getElementById('totalLoss').textContent = totalLoss;
+            document.getElementById('calcCycle').textContent = C0.toFixed(1);
+            document.getElementById('finalCycle').textContent = C;
+
+            trafficData.results.cycle = {
+                singleLoss,
+                totalLoss,
+                C0,
+                C
+            };
+        }
+
+        function calculateStep6() {
+            document.getElementById('stepCard6').style.display = 'none';
+            document.getElementById('stepCard7').style.display = 'block';
+            updateSteps(7);
+            calculateGreenTimes();
+        }
+
+        function calculateGreenTimes() {
+            const flowRatios = trafficData.results.flowRatios;
+            const cycle = trafficData.results.cycle;
+            const signalTimes = trafficData.results.signalTimes;
+
+            const ge1 = (cycle.C - cycle.totalLoss) * (flowRatios.y1 / flowRatios.Y);
+            const ge2 = (cycle.C - cycle.totalLoss) * (flowRatios.y2 / flowRatios.Y);
+            const ge3 = (cycle.C - cycle.totalLoss) * (flowRatios.y3 / flowRatios.Y);
+
+            const g1 = Math.round(ge1);
+            const g2 = Math.round(ge2);
+            const g3 = cycle.C - cycle.totalLoss - g1 - g2;
+
+            const phase1 = g1 + signalTimes.yellow + signalTimes.allRed;
+            const phase2 = g2 + signalTimes.yellow + signalTimes.allRed;
+            const phase3 = g3 + signalTimes.yellow + signalTimes.allRed;
+
+            let html = `
+                <tr>
+                    <td>Φ1 (南北左转)</td>
+                    <td>${flowRatios.y1.toFixed(3)}</td>
+                    <td>${ge1.toFixed(1)}s</td>
+                    <td>${g1}s</td>
+                    <td>${signalTimes.yellow}s</td>
+                    <td>${signalTimes.allRed}s</td>
+                    <td>${phase1}s</td>
+                </tr>
+                <tr>
+                    <td>Φ2 (南北直右)</td>
+                    <td>${flowRatios.y2.toFixed(3)}</td>
+                    <td>${ge2.toFixed(1)}s</td>
+                    <td>${g2}s</td>
+                    <td>${signalTimes.yellow}s</td>
+                    <td>${signalTimes.allRed}s</td>
+                    <td>${phase2}s</td>
+                </tr>
+                <tr>
+                    <td>Φ3 (东西直右+左转)</td>
+                    <td>${flowRatios.y3.toFixed(3)}</td>
+                    <td>${ge3.toFixed(1)}s</td>
+                    <td>${g3}s</td>
+                    <td>${signalTimes.yellow}s</td>
+                    <td>${signalTimes.allRed}s</td>
+                    <td>${phase3}s</td>
+                </tr>
+            `;
+            document.getElementById('greenTimeTable').innerHTML = html;
+            document.getElementById('cycleSum').textContent = phase1 + phase2 + phase3;
+
+            trafficData.results.greenTimes = { g1, g2, g3 };
+        }
+
+        function calculateStep7() {
+            document.getElementById('stepCard7').style.display = 'none';
+            document.getElementById('stepCard8').style.display = 'block';
+            updateSteps(8);
+            checkPedestrian();
+        }
+
+        function checkPedestrian() {
+            const params = trafficData.params;
+            const greenTimes = trafficData.results.greenTimes;
+
+            const t_p = params.crosswalkWidth / params.pedSpeed;
+            const g_min = Math.round(t_p) + 5;
+
+            const data = [
+                { phase: 'Φ1 (南北左转)', green: greenTimes.g1, ok: greenTimes.g1 >= g_min },
+                { phase: 'Φ2 (南北直右)', green: greenTimes.g2, ok: greenTimes.g2 >= g_min },
+                { phase: 'Φ3 (东西直右+左转)', green: greenTimes.g3, ok: greenTimes.g3 >= g_min }
+            ];
+
+            let html = '';
+            let allOk = true;
+            data.forEach(item => {
+                allOk = allOk && item.ok;
+                html += `
+                    <tr>
+                        <td>${item.phase}</td>
+                        <td>${item.green}s</td>
+                        <td>行人过街</td>
+                        <td>${g_min}s</td>
+                        <td>${item.ok ? '✅ 满足' : '❌ 不满足'}</td>
+                    </tr>
+                `;
+            });
+            document.getElementById('pedTable').innerHTML = html;
+
+            const resultDiv = document.getElementById('pedResult');
+            if (allOk) {
+                resultDiv.innerHTML = '<strong>✅ 行人过街时间检验通过！</strong>';
+                resultDiv.style.background = 'rgba(67, 160, 71, 0.08)';
+            } else {
+                resultDiv.innerHTML = '<strong>⚠️ 部分相位不满足行人过街要求，请调整配时！</strong>';
+                resultDiv.style.background = 'rgba(244, 67, 54, 0.08)';
+            }
+
+            document.getElementById('summaryCycle').textContent = trafficData.results.cycle.C;
+            document.getElementById('summaryG1').textContent = greenTimes.g1;
+            document.getElementById('summaryG2').textContent = greenTimes.g2;
+            document.getElementById('summaryG3').textContent = greenTimes.g3;
+        }
+
+        function startSimulation() {
+            const greenTimes = trafficData.results.greenTimes;
+            const signalTimes = trafficData.results.signalTimes;
+            
+            let phase = 1;
+            let timeLeft = greenTimes.g1;
+
+            const updateSignals = () => {
+                document.getElementById('signal1').className = `signal-circle ${phase === 1 ? 'green' : phase === 2 ? 'red' : 'red'}`;
+                document.getElementById('signal2').className = `signal-circle ${phase === 2 ? 'yellow' : phase === 1 ? 'red' : 'red'}`;
+                document.getElementById('signal3').className = `signal-circle ${phase === 3 ? 'red' : phase === 1 ? 'red' : 'green'}`;
+
+                document.getElementById('time1').textContent = phase === 1 ? timeLeft : '-';
+                document.getElementById('time2').textContent = phase === 2 ? timeLeft : '-';
+                document.getElementById('time3').textContent = phase === 3 ? timeLeft : '-';
+
+                timeLeft--;
+
+                if (timeLeft < 0) {
+                    phase = phase % 3 + 1;
+                    timeLeft = phase === 1 ? greenTimes.g1 : phase === 2 ? greenTimes.g2 : greenTimes.g3;
+                }
+            };
+
+            updateSignals();
+            setInterval(updateSignals, 1000);
+        }
+    </script>
+</body>
+</html>

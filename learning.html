@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习指南 - 交通信号配时计算学习平台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <span class="nav-logo-icon">🚦</span>
+                <span>信号配时学习平台</span>
+            </a>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="calculator.html" class="nav-link">配时计算器</a>
+                <a href="learning.html" class="nav-link active">学习指南</a>
+                <a href="examples.html" class="nav-link">例题演示</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1 class="page-title">学习指南</h1>
+            <p class="page-subtitle">系统化学习交叉口信号配时设计的完整流程</p>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📚</span>
+                    <span class="card-title">学习路线图</span>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+                        <div style="text-align: center; padding: 20px; background: rgba(30, 136, 229, 0.05); border-radius: 8px;">
+                            <div style="font-size: 2rem; margin-bottom: 12px;">1️⃣</div>
+                            <h4 style="font-weight: 600; margin-bottom: 8px;">基础概念</h4>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">理解信号控制基本原理</p>
+                        </div>
+                        <div style="text-align: center; padding: 20px; background: rgba(67, 160, 71, 0.05); border-radius: 8px;">
+                            <div style="font-size: 2rem; margin-bottom: 12px;">2️⃣</div>
+                            <h4 style="font-weight: 600; margin-bottom: 8px;">数据准备</h4>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">收集交通流量和几何参数</p>
+                        </div>
+                        <div style="text-align: center; padding: 20px; background: rgba(255, 152, 0, 0.05); border-radius: 8px;">
+                            <div style="font-size: 2rem; margin-bottom: 12px;">3️⃣</div>
+                            <h4 style="font-weight: 600; margin-bottom: 8px;">配时计算</h4>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">掌握8步配时计算方法</p>
+                        </div>
+                        <div style="text-align: center; padding: 20px; background: rgba(156, 39, 176, 0.05); border-radius: 8px;">
+                            <div style="font-size: 2rem; margin-bottom: 12px;">4️⃣</div>
+                            <h4 style="font-weight: 600; margin-bottom: 8px;">实践应用</h4>
+                            <p style="font-size: 0.875rem; color: var(--text-secondary);">通过例题巩固知识</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📖</span>
+                    <span class="card-title">核心知识点</span>
+                </div>
+                <div class="card-body">
+                    <div class="tip-box">
+                        <h4>📌 什么是信号配时？</h4>
+                        <p>信号配时是指为交叉口交通信号设置合理的绿灯、黄灯、红灯时间，以优化交通流运行效率。合理的信号配时可以减少延误、提高通行能力、保障行人安全。</p>
+                    </div>
+
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-top: 24px; margin-bottom: 16px;">🔑 关键参数说明</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>参数</th>
+                                <th>符号</th>
+                                <th>含义</th>
+                                <th>典型取值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>高峰小时流量系数</td>
+                                <td>PHF</td>
+                                <td>高峰小时内流量的不均匀程度</td>
+                                <td>0.90-0.95</td>
+                            </tr>
+                            <tr>
+                                <td>设计饱和度</td>
+                                <td>v/c</td>
+                                <td>实际流量与饱和流量之比</td>
+                                <td>0.85-0.95</td>
+                            </tr>
+                            <tr>
+                                <td>饱和流量</td>
+                                <td>S</td>
+                                <td>单位时间内车道最大通行能力</td>
+                                <td>1800 VEH/h/车道</td>
+                            </tr>
+                            <tr>
+                                <td>流量比</td>
+                                <td>y</td>
+                                <td>关键车流流量与饱和流量之比</td>
+                                <td>根据计算</td>
+                            </tr>
+                            <tr>
+                                <td>信号周期</td>
+                                <td>C</td>
+                                <td>信号灯完成一个循环的时间</td>
+                                <td>60-180秒</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">💡</span>
+                    <span class="card-title">8步配时计算详解</span>
+                </div>
+                <div class="card-body">
+                    <div class="calculation-step">
+                        <div class="step-title">
+                            <span style="width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; font-weight: 700;">1</span>
+                            <span>输入基础数据</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">收集各进口道左转、直行、右转流量，以及设计参数（PHF、v/c、设计车速等）。</p>
+                    </div>
+
+                    <div class="calculation-step">
+                        <div class="step-title">
+                            <span style="width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; font-weight: 700;">2</span>
+                            <span>相位方案设计</span>
+                        </div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">根据左转流量判断是否需要设置左转保护相位，确定相位方案。判断条件：q_LT &gt; 200 × N（N为进口道车道数）。</p>
+                    </div>
+
+                    <div class="calculation-step">
+                        <div class="step-title">
+                            <span style="width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; font-weight: 700;">3</span>
+                            <span>车道组直行当量计算</span>
+                        </div>
+                        <div class="step-formula">直行当量 = 左转流量 × 1.4 + 直行流量 × 1.0 + 右转流量 × 1.3</div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">将不同转向的流量转换为统一的直行当量，便于后续计算。</p>
+                    </div>
+
+                    <div class="calculation-step">
+                        <div class="step-title">
+                            <span style="width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; font-weight: 700;">4</span>
+                            <span>流量比分析与关键车流确定</span>
+                        </div>
+                        <div class="step-formula">y = q / S<br>Y = Σy_i</div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">计算各相位关键车流的流量比，总流量比Y必须小于0.9才能进行下一步设计。</p>
+                    </div>
+
+                    <div class="calculation-step">
+                        <div class="step-title">
+                            <span style="width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; font-weight: 700;">5</span>
+                            <span>确定黄灯时间和全红时间</span>
+                        </div>
+                        <div class="step-formula">A = t_react + v / (3.6 × (2 × w + 0))<br>r = (l + w) / (v/3.6)</div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">黄灯时间用于清空交叉口，全红时间保障行人安全过街。</p>
+                    </div>
+
+                    <div class="calculation-step">
+                        <div class="step-title">
+                            <span style="width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; font-weight: 700;">6</span>
+                            <span>确定信号周期时长</span>
+                        </div>
+                        <div class="step-formula">L = n × (启动损失 + 全红时间)<br>C = L / (1 - PHF × (v/c) × Y)</div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">根据总损失时间和流量比计算信号周期，取整为5的倍数。</p>
+                    </div>
+
+                    <div class="calculation-step">
+                        <div class="step-title">
+                            <span style="width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; font-weight: 700;">7</span>
+                            <span>绿时分配</span>
+                        </div>
+                        <div class="step-formula">g_ei = (C - L) × (y_i / Y)</div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">根据各相位流量比分配绿灯时间，确保各相位时长之和等于信号周期。</p>
+                    </div>
+
+                    <div class="calculation-step">
+                        <div class="step-title">
+                            <span style="width: 28px; height: 28px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; font-weight: 700;">8</span>
+                            <span>行人过街时间检验</span>
+                        </div>
+                        <div class="step-formula">g_min = (w / v_p) + 5</div>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">确保各相位绿灯时间满足行人过街需求，g ≥ g_min。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">🎯</span>
+                    <span class="card-title">学习建议</span>
+                </div>
+                <div class="card-body">
+                    <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <li style="display: flex; gap: 12px;">
+                            <span style="font-size: 1.25rem;">📝</span>
+                            <div>
+                                <h5 style="font-weight: 600; margin-bottom: 4px;">做好笔记</h5>
+                                <p style="font-size: 0.875rem; color: var(--text-secondary);">记录每个步骤的计算方法和公式</p>
+                            </div>
+                        </li>
+                        <li style="display: flex; gap: 12px;">
+                            <span style="font-size: 1.25rem;">🧮</span>
+                            <div>
+                                <h5 style="font-weight: 600; margin-bottom: 4px;">手动计算</h5>
+                                <p style="font-size: 0.875rem; color: var(--text-secondary);">先手动计算再用工具验证</p>
+                            </div>
+                        </li>
+                        <li style="display: flex; gap: 12px;">
+                            <span style="font-size: 1.25rem;">💬</span>
+                            <div>
+                                <h5 style="font-weight: 600; margin-bottom: 4px;">讨论交流</h5>
+                                <p style="font-size: 0.875rem; color: var(--text-secondary);">与同学讨论不同的设计方案</p>
+                            </div>
+                        </li>
+                        <li style="display: flex; gap: 12px;">
+                            <span style="font-size: 1.25rem;">🔄</span>
+                            <div>
+                                <h5 style="font-weight: 600; margin-bottom: 4px;">多做练习</h5>
+                                <p style="font-size: 0.875rem; color: var(--text-secondary);">尝试不同参数观察结果变化</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>交通信号配时计算学习平台 - 基于《交通管理与控制》教材</p>
+            <p>帮助学生系统化完成交通工程课程设计</p>
+            <p style="font-size: 0.75rem; margin-top: 16px; opacity: 0.6;">© 2026 智能建造竞赛小组</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

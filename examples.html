@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>例题演示 - 交通信号配时计算学习平台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-logo">
+                <span class="nav-logo-icon">🚦</span>
+                <span>信号配时学习平台</span>
+            </a>
+            <div class="menu-toggle" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html" class="nav-link">首页</a>
+                <a href="calculator.html" class="nav-link">配时计算器</a>
+                <a href="learning.html" class="nav-link">学习指南</a>
+                <a href="examples.html" class="nav-link active">例题演示</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <div class="container">
+            <h1 class="page-title">例题演示</h1>
+            <p class="page-subtitle">教材经典例题的详细计算过程演示</p>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📋</span>
+                    <span class="card-title">例题8-4：十字形交叉口</span>
+                </div>
+                <div class="card-body">
+                    <div class="tip-box">
+                        <h4>📌 题目描述</h4>
+                        <p>某十字形交叉口，已知高峰小时流量系数PHF为0.95，设计目标v/c为0.95，驾驶员反应时间为1.0s，所有进口道坡度均为0，设计到达车速限制均为40km/h，行人过街步速为1.2m/s，人行横道宽度为3m。各进口方向机动车设计流量如图所示。试为该交叉口进行信号控制方案设计。</p>
+                    </div>
+
+                    <h4 style="font-size: 1rem; font-weight: 600; margin-top: 24px; margin-bottom: 16px;">📊 已知条件</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>进口道</th>
+                                <th>左转(VEH/h)</th>
+                                <th>直行(VEH/h)</th>
+                                <th>右转(VEH/h)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>西进口</td>
+                                <td>35</td>
+                                <td>620</td>
+                                <td>65</td>
+                            </tr>
+                            <tr>
+                                <td>东进口</td>
+                                <td>30</td>
+                                <td>580</td>
+                                <td>60</td>
+                            </tr>
+                            <tr>
+                                <td>南进口</td>
+                                <td>230</td>
+                                <td>750</td>
+                                <td>180</td>
+                            </tr>
+                            <tr>
+                                <td>北进口</td>
+                                <td>250</td>
+                                <td>800</td>
+                                <td>175</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 24px;">
+                        <button class="btn btn-primary" onclick="loadExample1()">
+                            🚀 在计算器中运行此例题
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">✅</span>
+                    <span class="card-title">计算结果</span>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+                        <div>
+                            <h4 style="font-weight: 600; margin-bottom: 16px;">🔢 关键参数</h4>
+                            <table class="data-table">
+                                <tbody>
+                                    <tr>
+                                        <td>高峰小时流量系数 PHF</td>
+                                        <td>0.95</td>
+                                    </tr>
+                                    <tr>
+                                        <td>设计饱和度 v/c</td>
+                                        <td>0.95</td>
+                                    </tr>
+                                    <tr>
+                                        <td>总流量比 Y</td>
+                                        <td>0.776</td>
+                                    </tr>
+                                    <tr>
+                                        <td>黄灯时间 A</td>
+                                        <td>3s</td>
+                                    </tr>
+                                    <tr>
+                                        <td>全红时间 r</td>
+                                        <td>2s</td>
+                                    </tr>
+                                    <tr>
+                                        <td>总损失时间 L</td>
+                                        <td>15s</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <h4 style="font-weight: 600; margin-bottom: 16px;">📈 配时方案</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>相位</th>
+                                        <th>绿灯时间</th>
+                                        <th>黄灯时间</th>
+                                        <th>全红时间</th>
+                                        <th>相位时长</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Φ1 南北左转</td>
+                                        <td>23s</td>
+                                        <td>3s</td>
+                                        <td>2s</td>
+                                        <td>28s</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Φ2 南北直右</td>
+                                        <td>46s</td>
+                                        <td>3s</td>
+                                        <td>2s</td>
+                                        <td>51s</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Φ3 东西直右+左转</td>
+                                        <td>26s</td>
+                                        <td>3s</td>
+                                        <td>2s</td>
+                                        <td>31s</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>合计</strong></td>
+                                        <td colspan="4"><strong>110s</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="visualization-container" style="margin-top: 24px;">
+                        <h4 style="font-weight: 600; margin-bottom: 24px;">🎮 信号配时演示</h4>
+                        <div class="signal-timing-display">
+                            <div class="signal-phase">
+                                <div class="signal-circle green">Φ1</div>
+                                <div class="signal-time">23</div>
+                                <div class="signal-label">南北左转</div>
+                            </div>
+                            <div class="signal-phase">
+                                <div class="signal-circle yellow">Φ2</div>
+                                <div class="signal-time">46</div>
+                                <div class="signal-label">南北直右</div>
+                            </div>
+                            <div class="signal-phase">
+                                <div class="signal-circle red">Φ3</div>
+                                <div class="signal-time">26</div>
+                                <div class="signal-label">东西直右+左转</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">💡</span>
+                    <span class="card-title">解题思路</span>
+                </div>
+                <div class="card-body">
+                    <ol style="padding-left: 20px;">
+                        <li style="margin-bottom: 12px;">
+                            <strong>相位设计</strong>：南北进口左转流量较大（230-250 VEH/h），需要设置左转保护相位；东西进口左转流量较小，无需保护相位。因此采用3相位方案。
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <strong>直行当量计算</strong>：将各进口道流量转换为直行当量，北进口最大（1031 pcu/h），西进口次之（706 pcu/h）。
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <strong>流量比分析</strong>：计算各相位关键车流流量比，总流量比Y=0.776&lt;0.9，满足设计要求。
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <strong>信号周期计算</strong>：根据周期公式计算得C₀=107.1s，取整为110s。
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <strong>绿时分配</strong>：按流量比分配绿灯时间，Φ1=23s，Φ2=46s，Φ3=26s。
+                        </li>
+                        <li style="margin-bottom: 12px;">
+                            <strong>行人检验</strong>：行人过街最小绿灯时间g_min=7.5s，各相位绿灯时间均满足要求。
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon">📝</span>
+                    <span class="card-title">练习题目</span>
+                </div>
+                <div class="card-body">
+                    <div class="tip-box">
+                        <h4>🧩 练习题</h4>
+                        <p>假设将设计车速改为50km/h，其他条件不变，试重新计算信号配时方案。请使用配时计算器完成，并对比结果变化。</p>
+                    </div>
+                    <p style="margin-top: 16px; font-size: 0.875rem; color: var(--text-secondary);">
+                        <strong>思考问题：</strong>车速提高后，黄灯时间和全红时间会如何变化？信号周期会变长还是变短？为什么？
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>交通信号配时计算学习平台 - 基于《交通管理与控制》教材</p>
+            <p>帮助学生系统化完成交通工程课程设计</p>
+            <p style="font-size: 0.75rem; margin-top: 16px; opacity: 0.6;">© 2026 智能建造竞赛小组</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        function loadExample1() {
+            localStorage.setItem('exampleData', JSON.stringify({
+                wLeft: 35, wStraight: 620, wRight: 65,
+                eLeft: 30, eStraight: 580, eRight: 60,
+                sLeft: 230, sStraight: 750, sRight: 180,
+                nLeft: 250, nStraight: 800, nRight: 175,
+                phf: 0.95, vc: 0.95, speed: 40, crosswalkWidth: 3, pedSpeed: 1.2
+            }));
+            window.location.href = 'calculator.html';
+        }
+    </script>
+</body>
+</html>
